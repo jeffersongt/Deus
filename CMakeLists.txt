@@ -1,35 +1,31 @@
 cmake_minimum_required(VERSION 3.17)
 
 # Name of the CMake project
-project(Template)
+project(Deus)
 
 # C++ standard you want to use for the project
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR})
-set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_BINARY_DIR})
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/import)
 
 option(UNIT_TESTS "When sets to ON, build the unit tests" OFF)
+
+include(FetchYamlCPP)
 
 if(UNIT_TESTS)
     # Bin name of the unit tests
     set(BIN unit_tests)
 else()
     # Bin name of the project
-    set(BIN binary)
+    set(BIN deus)
 endif()
 
 # Fetch GoogleTest
 if(UNIT_TESTS)
     find_package(googletest QUIET)
-    include(FetchContent)
-    FetchContent_Declare(
-	    googletest
-	    URL https://github.com/google/googletest/archive/refs/tags/release-1.11.0.zip
-    )
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    FetchContent_MakeAvailable(googletest)
+    include(FetchGoogleTest)
 endif()
 
 # Build flags
@@ -44,7 +40,9 @@ set(MAIN src/main.cpp)
 
 # List of source files
 set(SOURCES
-    # fill here
+    src/main.cpp
+    src/config.cpp
+    src/resource.cpp
 )
 
 # List of tests source files
@@ -71,3 +69,5 @@ endif()
 
 # Include path of the project
 target_include_directories(${BIN} PRIVATE include)
+
+target_link_libraries(${BIN} PUBLIC yaml-cpp)

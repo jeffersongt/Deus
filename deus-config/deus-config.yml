@@ -1,0 +1,42 @@
+# Crud name
+# Format: string
+crud-name: TypeHere
+
+# Database model
+# Format: - variable-name: variable-type
+models:
+  - email: string
+  - password: string
+  - username: string
+  - phone: number
+
+# Foreign keys: if a variable value belongs to another table
+# Format: - variable-name: foreign-model-name
+foreign-keys:
+  - phone: Phone
+
+# Http request body Validator: should the field be optional
+# Format: [ variable-name, other-variable-name ]
+body-validator-optional-values: [
+	username,
+	username,
+]
+
+# Routes controller: crud, additional routes
+# Format: crud: yes = true, no = false
+# Format: additionals: - { routes: route-name, http: http-method }
+controller:
+  - crud: true
+  - additionals:
+    - { routes: TypeHereAnAdditionalRouteIfNecessary1, http: get }
+    - { routes: TypeHereAnAdditionalRouteIfNecessary2, http: post }
+    - { routes: TypeHereAnAdditionalRouteIfNecessary3, http: patch }
+    - { routes: TypeHereAnAdditionalRouteIfNecessary4, http: delete }
+
+# Policies
+# Format: yes = true, no = false
+policies: true
+
+# Automated tests for the generated routes
+# Format: yes = true, no = false
+automated-routes-testing: true

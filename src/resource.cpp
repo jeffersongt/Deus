@@ -51,8 +51,7 @@ YAML::Node Resource::openFile() {
 
 int Resource::readFile(YAML::Node file) {
     try {
-        if (!file["crud-name"] || file["crud-name"].as<std::string>().empty()) {
-            // null variable check doesn't work
+        if (!file["crud-name"]) {
             throw "Crud name is blank";
         }
         const std::string crudName = file["crud-name"].as<std::string>();
@@ -103,16 +102,14 @@ int Resource::readFile(YAML::Node file) {
             }
         }
 
-        if (!file["policies"] || file["policies"].as<std::string>().empty()) {
-            // null variable check doesn't work
+        if (!file["policies"]) {
             throw "Policies choice is blank";
         }
         const bool policies = file["policies"].as<bool>();
         setPolicies(policies);
         std::cout << "Policies : " << policies << std::endl;
 
-        if (!file["automated-routes-testing"] || file["automated-routes-testing"].as<std::string>().empty()) {
-            // null variable check doesn't work
+        if (!file["automated-routes-testing"]) {
             throw "Tests choice is blank";
         }
         const bool tests = file["automated-routes-testing"].as<bool>();

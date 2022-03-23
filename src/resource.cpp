@@ -3,7 +3,7 @@
 Resource::Resource()
 {
     dir_to_check = {"app", "app/Controllers", "app/Controllers/Http", "app/Models",
-    "app/Validators", "app/Policies", "start", "start/routes"};
+    "app/Validators", "app/Policies", "start", "start/routes", "database", "database/seeders"};
 }
 
 int Resource::core() {
@@ -31,6 +31,9 @@ int Resource::core() {
         return -1;
     }
     if (writeController() != 0) {
+        return -1;
+    }
+    if (writeSeeder() != 0) {
         return -1;
     }
     return 0;
@@ -141,13 +144,18 @@ int Resource::checkFiles(std::string file, std::string path) {
     return 0;
 }
 
-void Resource::resetPath() {
-    std::filesystem::current_path("../../");
+void Resource::resetPath(std::string path) {
+    std::filesystem::current_path(path);
     return;
 }
 
 void Resource::setCrudName(std::string _var) {
+    std::string crudLower = _var;
+    std::for_each(crudLower.begin(), crudLower.end(), [](char & c){
+        c = ::tolower(c);
+    });
     _crud_name = _var;
+    _crud_lower = crudLower;
 }
 
 void Resource::setPolicies(bool _var) {
@@ -181,7 +189,7 @@ int Resource::writeController() {
         }
         controller << ControllerEnd;
         controller.close();
-        resetPath();
+        resetPath("../../../");
         return 0;
     } catch(const char* error) {
         std::cerr << error << std::endl;
@@ -224,7 +232,7 @@ int Resource::writeModel() {
         }
         model << classEnd;
         model.close();
-        resetPath();
+        resetPath("../../");
         return 0;
     } catch(const char* error) {
         std::cerr << error << std::endl;
@@ -247,7 +255,7 @@ int Resource::writePolicy() {
             policy << headers << hasAccess << classWrite;
             policy.close();
         }
-        resetPath();
+        resetPath("../../");
         return 0;
     } catch(const char* error) {
         std::cerr << error << std::endl;
@@ -280,7 +288,7 @@ int Resource::writeValidator() {
         }
         validator << classEnd;
         validator.close();
-        resetPath();
+        resetPath("../../");
         return 0;
     } catch(const char* error) {
         std::cerr << error << std::endl;
@@ -290,13 +298,9 @@ int Resource::writeValidator() {
 
 int Resource::writeRoutes() {
     try {
-        std::string crudLower = _crud_name;
-        std::for_each(crudLower.begin(), crudLower.end(), [](char & c){
-            c = ::tolower(c);
-        });
         std::string headers =
         "import Route from '@ioc:Adonis/Core/Route'\n\n";
-        std::string fileName = crudLower + ".ts";
+        std::string fileName = _crud_lower + ".ts";
         std::string RoutesInit = "/**\n * " + _crud_name + "\n */\nRoute.group(() => {\n\t";
         std::string RoutesEnd =  "}).middleware(['auth'])\n";
 
@@ -306,14 +310,55 @@ int Resource::writeRoutes() {
         std::ofstream routes(fileName);
         routes << headers << RoutesInit;
         if (route_crud) {
-            routes << "Route.resource('" + crudLower + "', '" + _crud_name + "Controller')\n";
+            routes << "Route.resource('" + _crud_lower + "', '" + _crud_name + "Controller')\n";
         }
         for (std::map<std::string, std::string>::iterator it = additional_routes.begin(); it != additional_routes.end(); it++) {
             routes << "\tRoutes." + it->second + "('" + it->first + "', '" + _crud_name + "Controller')\n";
         }
         routes << RoutesEnd;
         routes.close();
-        resetPath();
+        resetPath("../../");
+        return 0;
+    } catch(const char* error) {
+        std::cerr << error << std::endl;
+        return -1;
+    }
+}
+
+int Resource::writeSeeder() {
+    try {
+        std::string headers =
+        "import BaseSeeder from '@ioc:Adonis/Lucid/Seeder'\nimport " + _crud_name + " from 'App/Models/" + _crud_name + "'";
+        std::string fileName = _crud_name + ".ts";
+        std::string classInit = "\n\nexport default class " + _crud_name + "Seeder extends BaseSeeder {\n\tpublic async run() {\n\t\t";
+        std::string fillInit = "const " + _crud_lower + " = await " + _crud_name + ".create({\n";
+        std::string classEnd =  "\t\t})\n\t}\n}\n";
+
+        if (checkFiles(fileName, "database/seeders") != 0) {
+            throw "Seeder already exists";
+        }
+        std::ofstream seeder(fileName);
+        seeder << headers << classInit << fillInit;
+        for (std::map<std::string, std::string>::iterator it = _column.begin(); it != _column.end(); it++) {
+            std::string str = "other_types";
+            int num = 0;
+            bool bl = false;
+            if (it->second == "number") {
+                seeder << "\t\t\t" << it->first << ": " << num << ",\n";
+                continue;
+            }
+            if (it->second == "Boolean" || it->second == "boolean" || it->second == "bool") {
+                seeder << "\t\t\t" << it->first << ": " << bl << ",\n";
+                continue;
+            }
+            else {
+                seeder << "\t\t\t" << it->first << ": '" << str << "',\n";
+                continue;
+            }
+        }
+        seeder << classEnd;
+        seeder.close();
+        resetPath("../../");
         return 0;
     } catch(const char* error) {
         std::cerr << error << std::endl;

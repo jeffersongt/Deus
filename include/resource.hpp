@@ -19,13 +19,14 @@ class Resource {
 
         int checkDirectory(std::string);
         int checkFiles(std::string, std::string);
-        void resetPath();
+        void resetPath(std::string);
 
         int writeController();
         int writeModel();
         int writePolicy();
         int writeValidator();
         int writeRoutes();
+        int writeSeeder();
 
         void setCrudName(std::string);
         void setTests(bool);
@@ -33,6 +34,7 @@ class Resource {
     private:
         std::vector<std::string> dir_to_check;
         std::string _crud_name;
+        std::string _crud_lower;
         std::map<std::string, std::string> _column;
         std::map<std::string, std::string> foreign_keys;
         std::vector<std::string> validator_optional;

@@ -1,51 +1,26 @@
 # Deus
 
+- Deus is a `model / routes / controller / validator / policy` generator for [Adonis](https://adonisjs.com/) framework
+
+- It permits you to generate a resource for your [Adonis](https://adonisjs.com/) project based on a configuration file
+
 ## :warning: Requirement
 
 - [CMake >= 3.17](https://cmake.org/download/)
 - [C++17](https://en.cppreference.com/w/cpp/17)
+
+- Be aware that the project on which you use Deus should have `lucid/orm` and `bouncer` package configured
 
 ## :computer: Usage
 
 ### :rocket: Clone repository
 
 ```sh
-git clone https://github.com/martin-olivier/CppTemplate
+git clone https://github.com/jeffersongt/Deus
 ```
 
-### :wrench: Setup repository
+### :hammer: Build project
 
 ```sh
-python3 setup.py
+python3 build.py
 ```
-
-## :hammer: Build
-
-With Makefile:
-```sh
-# to build the program
-make
-./deus
-
-# to build the tests
-make tests
-./unit_tests
-```
-
-With CMake:
-```sh
-# to build the program
-cmake . -B build
-cmake --build build
-./deus
-
-# to build the tests
-cmake . -B build_tests -DUNIT_TESTS=ON
-cmake --build build_tests
-./unit_tests
-```
-
-## :bust_in_silhouette: Authors
-
- - [Martin Olivier](https://github.com/martin-olivier)
- - [Coline Seguret](https://github.com/Cleopha)

@@ -12,7 +12,7 @@ void deus::core::help(int exit_status) {
     std::cout << "\tconfig     generate a deus config file" << std::endl;
     std::cout << "\tresource   generate resources based on your config file\n" << std::endl;
     std::cout << "OPTIONS:" << std::endl;
-    std::cout << "--override   allow overriding existing files" << std::endl;
+    std::cout << "\t--override allow overriding existing files" << std::endl;
     exit(exit_status);
 }
 

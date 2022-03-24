@@ -7,27 +7,28 @@ void help(int exit_status) {
     std::cout << "USAGE:" << std::endl;
     std::cout << "\tdeus [ARGUMENT]\n" << std::endl;
     std::cout << "ARGUMENT:" << std::endl;
-    std::cout << "\thelp     : print this help section" << std::endl;
-    std::cout << "\tconfig   : generate a Deus config file" << std::endl;
-    std::cout << "\tresource : generate resources based on your config file" << std::endl;
+    std::cout << "\thelp       print this help section" << std::endl;
+    std::cout << "\tconfig     generate a deus config file" << std::endl;
+    std::cout << "\tresource   generate resources based on your config file" << std::endl;
     exit(exit_status);
 }
 
-int main(int argc, char** argv)
+int main(int ac, char** av)
 {
-    if (argc != 2)
+    std::string_view arg = av[1];
+    if (ac != 2)
         help(EXIT_FAILURE);
 
-    if (std::string_view(argv[1]) == "help")
+    if (arg == "help" or arg == "--help" or arg == "-h")
         help(EXIT_SUCCESS);
 
-    else if (std::string_view(argv[1]) == "resource") {
+    else if (arg == "resource") {
         Resource resource;
         if (resource.core() != 0) {
             return EXIT_FAILURE;
         }
     }
-    else if (std::string_view(argv[1]) == "config") {
+    else if (arg == "config") {
         Config config;
         if (config.core() != 0) {
             return EXIT_FAILURE;

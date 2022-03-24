@@ -19,8 +19,8 @@ jobs:
         steps:
             - uses: actions/checkout@v2
 
-            - name: Generate Build File
-              run: cmake . -B build
+            - name: Build and Install
+              run: ./install.py
 
-            - name: Build Project
-              run: cmake --build build
+            - name: Check
+              run: deus help

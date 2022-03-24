@@ -19,20 +19,20 @@
 git clone https://github.com/jeffersongt/Deus
 ```
 
-### :hammer: Build project
+### :hammer: Build and Install project
 
-It will build the project and add `deus` binary to your PATH so you'll be able to use it anywhere
+The following command will build the project install `deus` on your system:
 
 ```sh
-python3 build.py
+./install.py
 ```
 
 ### :wrench: Helper
 
-If you need some help
+If you need some help:
 
 ```sh
-./deus help
+deus help
 ```
 
 ### :wrench: Config file generator

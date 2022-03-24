@@ -1,5 +1,4 @@
 #include "core.hpp"
-#include "config.hpp"
 #include "resource.hpp"
 #include <string_view>
 #include <iostream>
@@ -35,16 +34,10 @@ deus::core::core(int ac, char **av)
 {
     parsing(ac, av);
     std::string_view arg = av[1];
-    if (arg == "config") {
-        Config config;
-        if (config.core() != 0) {
-            throw std::runtime_error("error occured");
-        }
-    }
+    if (arg == "config")
+        config();
     else if (arg == "resource") {
-        Resource resource;
-        if (resource.core() != 0) {
-            throw std::runtime_error("error occured");
-        }
+        Resource resource(m_override);
+        resource.generate();
     }
 }

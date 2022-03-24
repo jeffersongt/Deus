@@ -12,28 +12,29 @@
 
 class Resource {
     public:
-        Resource();
-        int core();
+        Resource(bool override_allowed) : _override(override_allowed) {}
+        ~Resource() = default;
 
-        YAML::Node openFile();
-        int readFile(YAML::Node);
+        static YAML::Node get_yaml(const std::string &path);
 
-        int checkDirectory(std::string);
-        int checkFiles(std::string, std::string);
-        void resetPath(std::string);
+        void generate();
+        void readFile(YAML::Node &);
 
-        int writeController();
-        int writeModel();
-        int writePolicy();
-        int writeValidator();
-        int writeRoutes();
-        int writeSeeder();
+        void check_directories();
+        void checkFiles(std::filesystem::path, std::filesystem::path);
+
+        void writeController();
+        void writeModel();
+        void writePolicy();
+        void writeValidator();
+        void writeRoutes();
+        void writeSeeder();
 
         void setCrudName(std::string);
         void setTests(bool);
         void setPolicies(bool);
     private:
-        std::vector<std::string> dir_to_check;
+        bool _override;
         std::string _crud_name;
         std::string _crud_lower;
         std::map<std::string, std::string> _column;

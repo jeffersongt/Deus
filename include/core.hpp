@@ -8,7 +8,8 @@ namespace deus {
         core(int ac, char **av);
         ~core() = default;
 
-        void parsing(int ac, char **av);
         static void help(int exit_status);
+        void parsing(int ac, char **av);
+        void config();
     };
 }

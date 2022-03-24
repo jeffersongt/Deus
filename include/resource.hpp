@@ -29,6 +29,7 @@ class Resource {
         void writeValidator();
         void writeRoutes();
         void writeSeeder();
+        void writeTests();
 
         void setCrudName(std::string);
         void setTests(bool);

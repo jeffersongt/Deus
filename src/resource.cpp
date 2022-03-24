@@ -11,6 +11,7 @@ void Resource::generate()
     writeRoutes();
     writeController();
     writeSeeder();
+    writeTests();
 }
 
 YAML::Node Resource::get_yaml(const std::string &path)
@@ -25,7 +26,7 @@ YAML::Node Resource::get_yaml(const std::string &path)
 void Resource::check_directories()
 {
     std::vector<std::string_view> dirs = {"app", "app/Controllers", "app/Controllers/Http", "app/Models",
-    "app/Validators", "app/Policies", "start", "start/routes", "database", "database/seeders"};
+    "app/Validators", "app/Policies", "start", "start/routes", "database", "database/seeders", "test"};
 
     for (auto &dir : dirs) {
         if (std::filesystem::is_directory(dir) && !_override)
@@ -38,18 +39,15 @@ void Resource::readFile(YAML::Node &file)
 {
     if (!file["crud-name"])
         throw std::runtime_error("Crud name value is not set");
-    
+
     const std::string crudName = file["crud-name"].as<std::string>();
     setCrudName(crudName);
-    std::cout << "Crud name setted: " << _crud_name << std::endl;
 
     const YAML::Node& models = file["models"];
     for (std::size_t i = 0; i < models.size(); i++) {
         const YAML::Node model = models[i];
         for(auto j = model.begin(); j != model.end(); j++) {
-        _column.emplace(j->first.as<std::string>(), j->second.as<std::string>());
-            std::cout << "Name: " << j->first.as<std::string>() << std::endl;
-            std::cout << "Type: " << j->second.as<std::string>() << std::endl;
+            _column.emplace(j->first.as<std::string>(), j->second.as<std::string>());
         }
     }
 
@@ -58,8 +56,6 @@ void Resource::readFile(YAML::Node &file)
         const YAML::Node key = foreign[i];
         for(auto j = key.begin(); j != key.end(); j++) {
             foreign_keys.emplace(std::make_pair(j->first.as<std::string>(), j->second.as<std::string>()));
-            std::cout << "Key: " << j->first.as<std::string>() << std::endl;
-            std::cout << "Model: " << j->second.as<std::string>() << std::endl;
         }
     }
 
@@ -67,7 +63,6 @@ void Resource::readFile(YAML::Node &file)
     for(YAML::const_iterator it = optional.begin(); it != optional.end(); it++) {
         const YAML::Node &opt = *it;
         validator_optional.push_back(opt.as<std::string>());
-        std::cout << "Optional: " << opt.as<std::string>() << std::endl;
     }
 
     const YAML::Node &controller = file["controller"];
@@ -75,14 +70,10 @@ void Resource::readFile(YAML::Node &file)
         const YAML::Node route = controller[i];
         if (controller[i]["crud"]) {
             route_crud = controller[i]["crud"].as<bool>();
-            std::cout << "Crud-route: " << route_crud << std::endl;
         }
         if (controller[i]["additionals"]) {
-            for (std::size_t j = 0; j < controller[i]["additionals"].size(); j++)
-            {
+            for (std::size_t j = 0; j < controller[i]["additionals"].size(); j++) {
                 additional_routes.emplace(controller[i]["additionals"][j]["routes"].as<std::string>(), controller[i]["additionals"][j]["http"].as<std::string>());
-                std::cout << "Additional-routes: " << controller[i]["additionals"][j]["routes"] << std::endl;
-                std::cout << "Additional-http: " << controller[i]["additionals"][j]["http"] << std::endl;
             }
         }
     }
@@ -91,14 +82,12 @@ void Resource::readFile(YAML::Node &file)
         throw std::runtime_error("Policies value is not set");
     const bool policies = file["policies"].as<bool>();
     setPolicies(policies);
-    std::cout << "Policies : " << policies << std::endl;
 
     if (!file["automated-routes-testing"])
         throw "Tests choice value is not set";
 
     const bool tests = file["automated-routes-testing"].as<bool>();
     setTests(tests);
-    std::cout << "Tests choice : " << _tests << std::endl;
 }
 
 void Resource::checkFiles(std::filesystem::path file, std::filesystem::path path)
@@ -259,4 +248,21 @@ void Resource::writeSeeder()
             seeder << "\t\t\t" << it->first << ": '" << str << "',\n";
     }
     seeder << classEnd;
+}
+
+void Resource::writeTests()
+{
+    std::string headers = "import test from 'japa'\nimport supertest from 'supertest'";
+    std::string fileName = _crud_name + ".spec.ts";
+    std::string consts = "\n\nconst BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`\n\n";
+    std::string testsInit = "test.group('test @Work API " + _crud_name + " controller', async () => {";
+    std::string loginTests = "\n\t/**\n\t * Login\n\t */\n\ttest.group('test @Work login', async () => {\n\t})\n";
+    std::string crudTests = "\n\t/**\n\t * " + _crud_name + "\n\t */\n\ttest.group('test @Work " + _crud_lower + "', async () => {\n\t})\n";
+    std::string testsEnd =  "})\n";
+
+    checkFiles(fileName, "test");
+    if (_tests) {
+        std::ofstream tests("test/" + fileName);
+        tests << headers << consts << testsInit << loginTests << crudTests << testsEnd;
+    }
 }

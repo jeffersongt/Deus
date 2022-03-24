@@ -3,7 +3,7 @@
 namespace deus {
     class core {
     private:
-        bool m_override = false;
+        bool _override = false;
     public:
         core(int ac, char **av);
         ~core() = default;

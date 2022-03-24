@@ -15,7 +15,7 @@ if os.system('cmake --build build') != 0:
 actual_os = platform.system()
 
 if actual_os == "Darwin":
-  tool = "cp"
+  tool = "sudo cp"
   bin = "deus"
   install_path = "/usr/local/bin"
 elif actual_os == "Linux":

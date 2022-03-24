@@ -5,7 +5,7 @@
 
 void deus::core::config()
 {
-    if (!m_override && std::filesystem::exists("deus-config.yml"))
+    if (!_override && std::filesystem::exists("deus-config.yml"))
         throw std::runtime_error("Config file \"deus-config.yml\" already exists");
 
     auto crud_name = "# Crud name\n# Format: string\ncrud-name: TypeHere\n\n";

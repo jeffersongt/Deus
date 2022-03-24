@@ -26,7 +26,7 @@ void deus::core::parsing(int ac, char **av)
         help(EXIT_FAILURE);
     for (int i = 2; i < ac; i++) {
         if (av[i] == std::string_view("--override"))
-            m_override = true;
+            _override = true;
     }
 }
 
@@ -37,7 +37,7 @@ deus::core::core(int ac, char **av)
     if (arg == "config")
         config();
     else if (arg == "resource") {
-        Resource resource(m_override);
+        Resource resource(_override);
         resource.generate();
     }
 }

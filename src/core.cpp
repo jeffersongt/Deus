@@ -21,9 +21,9 @@ void deus::core::parsing(int ac, char **av)
     if (ac == 1)
         help(EXIT_FAILURE);
     std::string_view arg = av[1];
-    if (arg == "help" or arg == "--help" or arg == "-h")
+    if (arg == "help" || arg == "--help" || arg == "-h")
         help(EXIT_SUCCESS);
-    if (!(arg == "config" or arg == "resource"))
+    if (!(arg == "config" || arg == "resource"))
         help(EXIT_FAILURE);
     for (int i = 2; i < ac; i++) {
         if (av[i] == std::string_view("--override"))

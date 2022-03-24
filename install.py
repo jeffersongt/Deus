@@ -21,7 +21,7 @@ if actual_os == "Darwin":
   install_path = "/usr/local/bin"
 elif actual_os == "Linux":
   bin = "deus"
-  install_path = "/home/${{USERNAME}}/.local/bin"
+  install_path = "/home/" + os.getenv("USERNAME") + "/.local/bin"
 elif actual_os == "Windows":
   bin = "Debug/deus"
   install_path = "$env:UserProfile/AppData/Local/Microsoft/WindowsApps"

@@ -41,6 +41,7 @@ set(MAIN src/main.cpp)
 # List of source files
 set(SOURCES
     src/main.cpp
+    src/core.cpp
     src/config.cpp
     src/resource.cpp
 )

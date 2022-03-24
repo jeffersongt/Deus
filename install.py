@@ -27,7 +27,7 @@ elif actual_os == "Linux":
   else:
     install_path = "/home/" + usr + "/.local/bin"
 elif actual_os == "Windows":
-  bin = "Debug/deus"
+  bin = "Debug/deus.exe"
   install_path = "$env:UserProfile/AppData/Local/Microsoft/WindowsApps"
 else:
   print("Unknown system, you will need to install Deus manually", file=sys.stderr)

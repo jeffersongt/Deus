@@ -1,6 +1,6 @@
 # Deus
 
-- Deus is a `model / routes / controller / validator / policy / automated tests` generator for [Adonis](https://adonisjs.com/) framework
+- Deus is a `model / migration / routes / controller / validator / policy / automated tests` generator for [Adonis](https://adonisjs.com/) framework
 
 - It permits you to generate a resource for your [Adonis](https://adonisjs.com/) project based on a configuration file
 

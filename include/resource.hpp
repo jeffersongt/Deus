@@ -30,6 +30,7 @@ class Resource {
         void writeRoutes();
         void writeSeeder();
         void writeTests();
+        void writeMigration();
 
         void setCrudName(std::string);
         void setTests(bool);

@@ -12,6 +12,7 @@ void Resource::generate()
     writeController();
     writeSeeder();
     writeTests();
+    writeMigration();
 }
 
 YAML::Node Resource::get_yaml(const std::string &path)
@@ -26,11 +27,11 @@ YAML::Node Resource::get_yaml(const std::string &path)
 void Resource::check_directories()
 {
     std::vector<std::string_view> dirs = {"app", "app/Controllers", "app/Controllers/Http", "app/Models",
-    "app/Validators", "app/Policies", "start", "start/routes", "database", "database/seeders", "test"};
+    "app/Validators", "app/Policies", "start", "start/routes", "database", "database/seeders", "database/migrations", "test"};
 
     for (auto &dir : dirs) {
         if (std::filesystem::is_directory(dir) && !_override)
-            throw std::runtime_error("\"" + std::string(dir) + "\" is already here");
+            return;
         std::filesystem::create_directory(dir);
     }
 }
@@ -93,7 +94,7 @@ void Resource::readFile(YAML::Node &file)
 void Resource::checkFiles(std::filesystem::path file, std::filesystem::path path)
 {
     if (std::filesystem::exists(path / file) && !_override)
-        throw std::runtime_error("file " + std::string(path / file) + "already exists");
+        throw std::runtime_error("file " + std::string(path / file) + " already exists");
 }
 
 void Resource::setCrudName(std::string _var) {
@@ -220,8 +221,12 @@ void Resource::writeRoutes()
     if (route_crud)
         routes << "Route.resource('" + _crud_lower + "', '" + _crud_name + "Controller')\n";
     for (std::map<std::string, std::string>::iterator it = additional_routes.begin(); it != additional_routes.end(); it++)
-        routes << "\tRoutes." + it->second + "('" + it->first + "', '" + _crud_name + "Controller')\n";
+        routes << "\tRoute." + it->second + "('" + it->first + "', '" + _crud_name + "Controller')\n";
     routes << RoutesEnd;
+
+    std::ofstream routesIndex;
+    routesIndex.open("start/routes.ts", std::ios_base::app);
+    routesIndex << "import './routes/" + _crud_lower + "'\n";
 }
 
 void Resource::writeSeeder()
@@ -265,4 +270,11 @@ void Resource::writeTests()
         std::ofstream tests("test/" + fileName);
         tests << headers << consts << testsInit << loginTests << crudTests << testsEnd;
     }
+}
+
+void Resource::writeMigration()
+{
+    std::string cmd = "node ace make:migration " + _crud_name;
+    const char* _cmd = cmd.c_str();
+    system(_cmd);
 }

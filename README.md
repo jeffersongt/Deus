@@ -37,12 +37,12 @@ deus help
 
 ### :wrench: Config file generator
 
-- Run this command to generate a configuration file in your current repository
+- Run this command to generate a configuration file in your current repository, be sure to be at the root of an Adonis project
 - Be sure to complete every field of the configuration file to avoid any generation error
-- A `deus-config.yml` file will be generated in `deus-config` folder, no need to create any folder or file, Deus is handling everything
+- A `deus-config.yml` file will be generated, no need to create any folder or file, Deus is handling everything
 
 ```sh
-./deus config
+deus config
 ```
 
 ### :wrench: Resource generator
@@ -50,5 +50,5 @@ deus help
 After filling the configuration file run this command to generate your resource
 
 ```sh
-./deus resource
+deus resource
 ```

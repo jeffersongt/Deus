@@ -40,6 +40,7 @@ deus help
 - Run this command to generate a configuration file in your current repository
 - Be sure to complete every field of the configuration file to avoid any generation error
 - A `deus-config.yml` file will be generated in `deus-config` folder, no need to create any folder or file, Deus is handling everything
+- Fields `id`, `created_at`, `updated_at` are set by default in model
 
 ```sh
 ./deus config

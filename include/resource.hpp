@@ -39,8 +39,10 @@ class Resource {
         bool _override;
         std::string _crud_name;
         std::string _crud_lower;
+        std::string _validator_folder;
         std::map<std::string, std::string> _column;
         std::map<std::string, std::string> foreign_keys;
+        std::map<std::string, std::string> swivel_tables;
         std::vector<std::string> validator_optional;
         bool route_crud;
         std::map<std::string, std::string> additional_routes;

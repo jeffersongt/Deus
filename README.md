@@ -42,7 +42,7 @@ deus help
 - Run this command to generate a configuration file in your current repository, be sure to be at the root of an Adonis project
 - Be sure to complete every field of the configuration file to avoid any generation error
 - A `deus-config.yml` file will be generated, no need to create any folder or file, Deus is handling everything
-- Fields `id`, `created_at`, `updated_at` are set by default in model
+- Fields `id`, `archived`, `created_at`, `updated_at` are set by default in model
 
 ```sh
 deus config
@@ -54,4 +54,12 @@ After filling the configuration file run this command to generate your resource
 
 ```sh
 deus resource
+```
+
+### :wrench: Overriding
+
+If you wish to recreate your resource and override the previsouly created files it is possible by using this option:
+
+```sh
+deus resource --override
 ```

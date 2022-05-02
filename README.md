@@ -4,6 +4,8 @@
 
 - It permits you to generate a resource for your [Adonis](https://adonisjs.com/) project based on a configuration file
 
+- This tool is made to be fully compatible and usable with my upcoming Adonis template
+
 ## :warning: Requirement
 
 - [CMake >= 3.17](https://cmake.org/download/)

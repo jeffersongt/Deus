@@ -26,7 +26,7 @@ YAML::Node Resource::get_yaml(const std::string &path)
 
 void Resource::check_directories()
 {
-    std::vector<std::string_view> dirs = {"app", "app/Controllers", "app/Controllers/Http", "app/Models",
+    std::vector<std::string_view> dirs = {"app", "app/Controllers", "app/Controllers/Http", "app/Controllers/Http/Admin", "app/Models",
     "app/Validators", _validator_folder, "app/Policies", "start", "start/routes", "database", "database/seeders", "database/migrations", "test"};
 
     for (auto &dir : dirs) {
@@ -60,11 +60,11 @@ void Resource::readFile(YAML::Node &file)
         }
     }
 
-    const YAML::Node& swivel = file["swivel-tables"];
+    const YAML::Node& swivel = file["pivot-tables"];
     for (std::size_t i = 0; i < swivel.size(); i++) {
         const YAML::Node key = swivel[i];
         for(auto j = key.begin(); j != key.end(); j++) {
-            swivel_tables.emplace(std::make_pair(j->first.as<std::string>(), j->second.as<std::string>()));
+            pivot_tables.emplace(std::make_pair(j->first.as<std::string>(), j->second.as<std::string>()));
         }
     }
 
@@ -112,7 +112,8 @@ void Resource::setCrudName(std::string _var) {
     });
     _crud_name = _var;
     _crud_lower = crudLower;
-    _validator_folder = "app/Validators/" + _var;
+    _validator_folder = "app/Validators/" + _var + "s";
+    import_validator_folder = "App/Validators/" + _var + "s";
 }
 
 void Resource::setPolicies(bool _var) {
@@ -126,23 +127,31 @@ void Resource::setTests(bool _var) {
 void Resource::writeController()
 {
     std::string headers =
-    "import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'\nimport Env from '@ioc:Adonis/Core/Env'\nimport { Filters } from 'App/Services/Filters'\nimport Logger from '@ioc:Adonis/Core/Logger'\nimport " + _crud_name + "Validator from 'App/Validators/" + _crud_name + "Validator'\nimport " + _crud_name + " from 'App/Models/" + _crud_name + "'";
+    "import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'\nimport Env from '@ioc:Adonis/Core/Env'\nimport { Filters } from 'App/Services/Filters'\nimport Logger from '@ioc:Adonis/Core/Logger'\nimport " + _crud_name + "Validator from '" + import_validator_folder + "/" + _crud_name + "Validator'\nimport " + _crud_name + " from 'App/Models/" + _crud_name + "'\nimport { ERRORS } from 'App/Exceptions/Messages'";
     std::string fileName = _crud_name + "sController.ts";
-    std::string ControllerInit = "\n\nexport default class " + _crud_name + "Controller {\n\tpublic initQuery() {\n\t\treturn " + _crud_name + ".query()\n\t}";
-    std::string ControllerGetAll = "\n\n\tpublic async index({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst details = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: '" + _crud_name + " Index error' }] })\n\t\t}\n\t}";
-    std::string ControllerGet = "\n\n\tpublic async show({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst details = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: '" + _crud_name + " Show error' }] })\n\t\t}\n\t}";
-    std::string ControllerPost = "\n\n\tpublic async store({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst details = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: '" + _crud_name + " Store error' }] })\n\t\t}\n\t}";
-    std::string ControllerUpdate = "\n\n\tpublic async update({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst details = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: '" + _crud_name + " Update error' }] })\n\t\t}\n\t}";
-    std::string ControllerArchive = "\n\n\tpublic async archive({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst details = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: '" + _crud_name + " Archive error' }] })\n\t\t}\n\t}";
-    std::string ControllerDelete = "\n\n\tpublic async destroy({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst details = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: '" + _crud_name + " Delete error' }] })\n\t\t}\n\t}";
+    std::string ControllerInit = "\n\nexport default class " + _crud_name + "sController {";
+    std::string ControllerIndex = "\n\n\tpublic async index({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst { ...details } = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn response.json()\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: ERRORS.MESSAGES.INDEX }] })\n\t\t}\n\t}";
+    std::string ControllerShow = "\n\n\tpublic async show({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst { ...details } = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn response.json()\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: ERRORS.MESSAGES.SHOW }] })\n\t\t}\n\t}";
+    std::string ControllerPost = "\n\n\tpublic async store({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst { ...details } = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn response.json()\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: ERRORS.MESSAGES.STORE }] })\n\t\t}\n\t}";
+    std::string ControllerUpdate = "\n\n\tpublic async update({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst { ...details } = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn response.json()\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: ERRORS.MESSAGES.UPDATE }] })\n\t\t}\n\t}";
+    std::string ControllerArchive = "\n\n\tpublic async archive({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst { ...details } = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn response.json()\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: ERRORS.MESSAGES.ARCHIVE }] })\n\t\t}\n\t}";
+    std::string ControllerDelete = "\n\n\tpublic async destroy({ response, params, request }: HttpContextContract) {\n\t\ttry {\n\t\t\tconst { ...details } = await request.validate(" + _crud_name + "Validator)\n\t\t\treturn response.json()\n\t\t} catch (e) {\n\t\t\tLogger.error({ err: Error }, e)\n\t\t\treturn response.abort({ errors: [{ message: ERRORS.MESSAGES.DELETE }] })\n\t\t}\n\t}";
     std::string ControllerEnd =  "\n}\n";
 
-    checkFiles(fileName, "app/Controllers/Http");
-    std::ofstream controller("app/Controllers/Http/" + fileName);
-    controller << headers << ControllerInit;
-    if (route_crud)
-        controller << ControllerGetAll << ControllerGet << ControllerPost << ControllerUpdate << ControllerArchive << ControllerDelete;
-    controller << ControllerEnd;
+    if (route_crud == true) {
+        checkFiles(fileName, "app/Controllers/Http");
+        std::ofstream controller("app/Controllers/Http/" + fileName);
+        controller << headers << ControllerInit;
+        if (route_crud)
+            controller << ControllerIndex << ControllerShow << ControllerPost << ControllerUpdate << ControllerArchive << ControllerDelete;
+        controller << ControllerEnd;
+        checkFiles(fileName, "app/Controllers/Http/Admin");
+        std::ofstream controllerAdm("app/Controllers/Http/Admin/" + fileName);
+        controllerAdm << headers << ControllerInit;
+        if (route_crud)
+            controllerAdm << ControllerIndex << ControllerShow << ControllerPost << ControllerUpdate << ControllerArchive << ControllerDelete;
+        controllerAdm << ControllerEnd;
+    }
 }
 
 void Resource::writeModel()
@@ -163,30 +172,35 @@ void Resource::writeModel()
             model << "\nimport " + it->second + " from 'App/Models/" + it->second + "'";
         }
     }
+    if (!foreign_keys.empty()) {
+        for (std::map<std::string, std::string>::iterator it = pivot_tables.begin(); it != pivot_tables.end(); it++) {
+            model << "\nimport " + it->second + " from 'App/Models/" + it->second + "'";
+        }
+    }
     model << classInit << baseFields;
     for (std::map<std::string, std::string>::iterator it = _column.begin(); it != _column.end(); it++) {
         model << "\n\t@column()\n\tpublic " + it->first + ": " + it->second + "\n";
     }
-    model << "\n\t@column.dateTime({ autoCreate: true })\n\tpublic createdAt: DateTime\n\n\t@column.dateTime({ autoCreate: true, autoUpdate: true })\n\tpublic updatedAt: DateTime\n\n";
+    model << "\n\t@column()\n\tpublic archived: boolean\n\n\t@column.dateTime({ autoCreate: true })\n\tpublic createdAt: DateTime\n\n\t@column.dateTime({ autoCreate: true, autoUpdate: true })\n\tpublic updatedAt: DateTime";
     if (!foreign_keys.empty()) {
         for (std::map<std::string, std::string>::iterator it = foreign_keys.begin(); it != foreign_keys.end(); it++) {
             std::string secondLower = it->second;
             std::for_each(secondLower.begin(), secondLower.end(), [](char & c){
                 c = ::tolower(c);
             });
-            model << "\t@belongsTo(() => " + it->second + ", {\n\t\tforeignKey: '" + it->first + "',\n\t})\n\tpublic " + secondLower << ": BelongsTo<typeof " + it->second + ">\n";
+            model << "\n\n\t@belongsTo(() => " + it->second + ", {\n\t\tforeignKey: '" + it->first + "',\n\t})\n\tpublic " + secondLower << ": BelongsTo<typeof " + it->second + ">";
         }
     }
-    if (!swivel_tables.empty()) {
-        for (std::map<std::string, std::string>::iterator it = swivel_tables.begin(); it != swivel_tables.end(); it++) {
+    if (!pivot_tables.empty()) {
+        for (std::map<std::string, std::string>::iterator it = pivot_tables.begin(); it != pivot_tables.end(); it++) {
             std::string secondLower = it->second;
             std::for_each(secondLower.begin(), secondLower.end(), [](char & c){
                 c = ::tolower(c);
             });
-            model << "\n\t@manyToMany(() => " + it->second + ")\n\tpublic " + it->first + ": ManyToMany<typeof " + it->second << ">\n";
+            model << "\n\n\t@manyToMany(() => " + it->second + ")\n\tpublic " + it->first + ": ManyToMany<typeof " + it->second << ">";
         }
     }
-    model << classEnd;
+    model << "\n" << classEnd;
 }
 
 void Resource::writePolicy()
@@ -194,7 +208,7 @@ void Resource::writePolicy()
     std::string headers = "import { BasePolicy } from '@ioc:Adonis/Addons/Bouncer'\nimport " + _crud_name + " from 'App/Models/" + _crud_name + "'";
     std::string fileName = _crud_name + "Policy.ts";
     std::string hasAccess = "\n\nasync function hasAccess() {\n\treturn await " + _crud_name + ".query()\n}\n\n";
-    std::string classWrite = "export default class " + _crud_name + "Policy extends BasePolicy {\n\tpublic async before() {\n\t\treturn\n\t}\n\n\tpublic async index() {\n\t\treturn\n\t}\n\n\tpublic async show() {\n\t\treturn\n\t}\n\n\tpublic async store() {\n\t\treturn\n\t}\n\n\tpublic async update() {\n\t\treturn\n\t}\n\n\tpublic async destroy() {\n\t\treturn\n\t}\n}\n";
+    std::string classWrite = "export default class " + _crud_name + "Policy extends BasePolicy {\n\tpublic async before() {\n\t\treturn true\n\t}\n\n\tpublic async index() {\n\t\treturn true\n\t}\n\n\tpublic async show() {\n\t\treturn true\n\t}\n\n\tpublic async store() {\n\t\treturn true\n\t}\n\n\tpublic async update() {\n\t\treturn true\n\t}\n\n\tpublic async destroy() {\n\t\treturn true\n\t}\n}\n";
 
     checkFiles(fileName, "app/Policies");
     if (_policies) {
@@ -212,9 +226,9 @@ void Resource::writeValidator()
     std::string classEnd =  "\t})\n\n\tpublic messages = {}\n}\n";
     std::string trim = "{}";
 
-    checkFiles(fileName, "app/Validators");
+    checkFiles(fileName, _validator_folder);
 
-    std::ofstream validator("app/Validators/" + _crud_name + "/" + fileName);
+    std::ofstream validator(_validator_folder + "/" + fileName);
     validator << headers << classInit;
     for (std::map<std::string, std::string>::iterator it = _column.begin(); it != _column.end(); it++) {
         std::string opt = "";
@@ -236,21 +250,23 @@ void Resource::writeRoutes()
     std::string headers =
     "import Route from '@ioc:Adonis/Core/Route'\n\n";
     std::string fileName = _crud_lower + "s.ts";
-    std::string RoutesInit = "/**\n * " + _crud_name + "\n */\nRoute.group(() => {\n\t";
+    std::string RoutesInit = "/**\n * " + _crud_name + "s\n */\nRoute.group(() => {\n\tRoute.group(() => {\n\t\t";
     std::string RoutesEnd =  "}).middleware(['auth'])\n";
 
-    checkFiles(fileName, "start/routes");
-    std::ofstream routes("start/routes/" + fileName);
-    routes << headers << RoutesInit;
-    if (route_crud)
-        routes << "Route.resource('" + _crud_lower + "', '" + _crud_name + "Controller')\n";
-    for (std::map<std::string, std::string>::iterator it = additional_routes.begin(); it != additional_routes.end(); it++)
-        routes << "\tRoute." + it->second + "('" + it->first + "', '" + _crud_name + "Controller')\n";
-    routes << RoutesEnd;
+    if (route_crud == true) {
+        checkFiles(fileName, "start/routes");
+        std::ofstream routes("start/routes/" + fileName);
+        routes << headers << RoutesInit;
+        if (route_crud)
+            routes << "Route.resource('" + _crud_lower + "s', 'Admin/" + _crud_name + "sController')\n\t})\n\t\t.middleware('admin')\n\t\t.prefix('admin')\n\n\tRoute.resource('" + _crud_lower + "s', '" + _crud_name + "sController')\n";
+        for (std::map<std::string, std::string>::iterator it = additional_routes.begin(); it != additional_routes.end(); it++)
+            routes << "\tRoute." + it->second + "('" + it->first + "', '" + _crud_name + "sController')\n";
+        routes << RoutesEnd;
 
-    std::ofstream routesIndex;
-    routesIndex.open("start/routes.ts", std::ios_base::app);
-    routesIndex << "import './routes/" + _crud_lower + "'\n";
+        std::ofstream routesIndex;
+        routesIndex.open("start/routes.ts", std::ios_base::app);
+        routesIndex << "import './routes/" + _crud_lower + "s'\n";
+    }
 }
 
 void Resource::writeSeeder()
@@ -286,9 +302,9 @@ void Resource::writeTests()
     std::string headers = "import test from 'japa'\nimport supertest from 'supertest'";
     std::string fileName = _crud_name + ".spec.ts";
     std::string consts = "\n\nconst BASE_URL = `http://${process.env.HOST}:${process.env.PORT}`\n\n";
-    std::string testsInit = "test.group('test @Work API " + _crud_name + " controller', async () => {";
-    std::string loginTests = "\n\t/**\n\t * Login\n\t */\n\ttest.group('test @Work login', async () => {\n\t})\n";
-    std::string crudTests = "\n\t/**\n\t * " + _crud_name + "\n\t */\n\ttest.group('test @Work " + _crud_lower + "', async () => {\n\t})\n";
+    std::string testsInit = "test.group('test API " + _crud_name + " controller', async () => {";
+    std::string loginTests = "\n\t/**\n\t * Login\n\t */\n\ttest.group('test login', async () => {\n\t})\n";
+    std::string crudTests = "\n\t/**\n\t * " + _crud_name + "\n\t */\n\ttest.group('test " + _crud_lower + "', async () => {\n\t})\n";
     std::string testsEnd =  "})\n";
 
     checkFiles(fileName, "test");
